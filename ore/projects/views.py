@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, UpdateView, DeleteView, RedirectView, FormView
 from django.views.generic.detail import SingleObjectMixin
 from ore.projects.forms import ProjectForm, ProjectDescriptionForm, ProjectRenameForm
-from ore.projects.models import Project
+from ore.projects.models import Project, Page
 from ore.core.views import RequiresPermissionMixin
 from ore.versions.models import File
 
@@ -26,6 +26,14 @@ class ProjectsDetailView(DetailView):
     def get_queryset(self):
         return Project.objects.as_user(self.request.user).filter(namespace__name=self.kwargs['namespace'])
 
+    def get_context_data(self, **kwargs):
+        context_data = super(ProjectsDetailView, self).get_context_data(**kwargs)
+        home_page = Page.objects.get(
+            project=self.get_object(),
+            slug='home'
+        )
+        context_data['home_page'] = home_page
+        return context_data
 
 class ProjectsManageView(RequiresPermissionMixin, DetailView):
 
